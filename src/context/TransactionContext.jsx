@@ -45,7 +45,25 @@ export function TransactionProvider({ children }) {
     return saved ? JSON.parse(saved) : { name: 'Iqbal Muwafa', avatar: 'https://ui-avatars.com/api/?name=Iqbal+Muwafa&background=random' };
   });
 
+  const [customCategories, setCustomCategories] = useState(() => {
+    const saved = localStorage.getItem('smart_categories');
+    return saved ? JSON.parse(saved) : [];
+  });
+
   const [syncStatus, setSyncStatus] = useState('idle'); // 'idle' | 'syncing' | 'synced' | 'error'
+
+  const [recurringItems, setRecurringItems] = useState(() => {
+    const saved = localStorage.getItem('smart_recurring');
+    return saved ? JSON.parse(saved) : [];
+  });
+
+  const [onboardingComplete, setOnboardingComplete] = useState(() => {
+    return localStorage.getItem('smart_onboarding_done') === 'true';
+  });
+
+  const [isGuest, setIsGuest] = useState(() => {
+    return localStorage.getItem('smart_is_guest') === 'true';
+  });
 
   // --- Initial Data Pull from Cloud on Login ---
   useEffect(() => {
@@ -55,17 +73,27 @@ export function TransactionProvider({ children }) {
         try {
           const dbRef = ref(db);
           const snapshot = await get(child(dbRef, `usersData/${user.uid}`));
+          
           if (snapshot.exists()) {
-            const data = snapshot.val();
-            // Ask user if they want to overwrite local data with cloud data
-            if (window.confirm('Data cloud ditemukan! Ingin menggunakan data dari cloud? (Ini akan menimpa data lokal Anda sekarang)')) {
-              if (data.transactions) setTransactions(data.transactions);
-              if (data.wallets) setWallets(data.wallets);
-              if (data.monthlyBudget) setMonthlyBudget(data.monthlyBudget);
-              if (data.goals) setGoals(data.goals);
-              if (data.userProfile) setUserProfile(data.userProfile);
-              alert('Data berhasil di-sync dari cloud!');
+            const cloudData = snapshot.val();
+            
+            // CONFLICT HANDLING LOGIC
+            if (transactions.length > 0 && cloudData.transactions && cloudData.transactions.length > 0) {
+               smartMerge(cloudData);
+               alert('Neymon menemukan data di Cloud & Lokal. Kami telah menggabungkan keduanya agar tetap lengkap! 🪄');
+            } else {
+               if (cloudData.transactions) setTransactions(cloudData.transactions);
+               if (cloudData.wallets) setWallets(cloudData.wallets);
+               if (cloudData.monthlyBudget) setMonthlyBudget(cloudData.monthlyBudget);
+               if (cloudData.goals) setGoals(cloudData.goals);
+               if (cloudData.userProfile) setUserProfile(cloudData.userProfile);
+               if (cloudData.customCategories) setCustomCategories(cloudData.customCategories);
+               if (cloudData.recurringItems) setRecurringItems(cloudData.recurringItems);
             }
+            setOnboardingComplete(true);
+            setIsGuest(false);
+          } else {
+            // New cloud user, if they have local data, it will be synced by the effect
           }
           setSyncStatus('synced');
         } catch (error) {
@@ -76,6 +104,32 @@ export function TransactionProvider({ children }) {
       fetchCloudData();
     }
   }, [user]);
+
+  // --- Smart Merge Function ---
+  const smartMerge = (cloudData) => {
+    // 1. Merge Transactions by ID (deduplicate)
+    const localMap = new Map(transactions.map(t => [t.id, t]));
+    cloudData.transactions.forEach(t => {
+      if (!localMap.has(t.id)) localMap.set(t.id, t);
+    });
+    const mergedTx = Array.from(localMap.values()).sort((a, b) => new Date(b.date) - new Date(a.date));
+    setTransactions(mergedTx);
+
+    // 2. Merge Custom Categories
+    const catMap = new Map(customCategories.map(c => [c.id, c]));
+    if (cloudData.customCategories) {
+      cloudData.customCategories.forEach(c => {
+        if (!catMap.has(c.id)) catMap.set(c.id, c);
+      });
+    }
+    setCustomCategories(Array.from(catMap.values()));
+
+    // 3. For Wallets: Cloud wins for simple state
+    if (cloudData.wallets) setWallets(cloudData.wallets);
+    if (cloudData.monthlyBudget) setMonthlyBudget(cloudData.monthlyBudget);
+    if (cloudData.goals) setGoals(cloudData.goals);
+    if (cloudData.recurringItems) setRecurringItems(cloudData.recurringItems);
+  };
 
   // --- Sync to Cloud Function ---
   const syncToCloud = async (currentData) => {
@@ -98,6 +152,10 @@ export function TransactionProvider({ children }) {
     localStorage.setItem('smart_ai_api_key', aiApiKey);
     localStorage.setItem('smart_goals', JSON.stringify(goals));
     localStorage.setItem('smart_profile', JSON.stringify(userProfile));
+    localStorage.setItem('smart_categories', JSON.stringify(customCategories));
+    localStorage.setItem('smart_recurring', JSON.stringify(recurringItems));
+    localStorage.setItem('smart_onboarding_done', onboardingComplete.toString());
+    localStorage.setItem('smart_is_guest', isGuest.toString());
 
     // Prevent syncing on the very first render to avoid overwriting cloud with old local data before fetching
     if (isInitialLoad.current) {
@@ -113,12 +171,59 @@ export function TransactionProvider({ children }) {
         monthlyBudget,
         goals,
         userProfile,
+        customCategories,
+        recurringItems,
         lastUpdated: new Date().toISOString()
       });
     }, 2000);
 
     return () => clearTimeout(timeoutId);
-  }, [transactions, wallets, monthlyBudget, aiApiKey, goals]);
+  }, [transactions, wallets, monthlyBudget, aiApiKey, goals, userProfile, customCategories, recurringItems, onboardingComplete, isGuest]);
+
+  const completeOnboarding = (data) => {
+    if (data.profile) setUserProfile(data.profile);
+    if (data.wallet) setWallets([data.wallet]);
+    setOnboardingComplete(true);
+  };
+
+  const startAsGuest = () => {
+    setIsGuest(true);
+    setUserProfile({ 
+      name: 'Guest Mode', 
+      avatar: `https://ui-avatars.com/api/?name=Guest+Mode&background=71717a&color=fff` 
+    });
+  };
+
+  // --- Recurring CRUD ---
+  const addRecurring = (item) => {
+    const newItem = {
+      ...item,
+      id: Date.now().toString(),
+      nextDue: item.date
+    };
+    setRecurringItems(prev => [...prev, newItem]);
+  };
+
+  const deleteRecurring = (id) => {
+    if (window.confirm('Hapus tagihan rutin ini?')) {
+      setRecurringItems(prev => prev.filter(r => r.id !== id));
+    }
+  };
+
+  // --- Category CRUD ---
+  const addCategory = (cat) => {
+    const newCat = {
+      ...cat,
+      id: 'custom_' + Date.now().toString()
+    };
+    setCustomCategories(prev => [...prev, newCat]);
+  };
+
+  const deleteCategory = (id) => {
+    if (window.confirm('Yakin ingin menghapus kategori ini?')) {
+      setCustomCategories(prev => prev.filter(c => c.id !== id));
+    }
+  };
 
 
   // --- Wallet CRUD ---
@@ -241,6 +346,8 @@ export function TransactionProvider({ children }) {
     if (parsedData.aiApiKey !== undefined) setAiApiKey(parsedData.aiApiKey);
     if (parsedData.goals) setGoals(parsedData.goals);
     if (parsedData.userProfile) setUserProfile(parsedData.userProfile);
+    if (parsedData.customCategories) setCustomCategories(parsedData.customCategories);
+    if (parsedData.recurringItems) setRecurringItems(parsedData.recurringItems);
   };
 
   // --- Computed Values ---
@@ -277,6 +384,16 @@ export function TransactionProvider({ children }) {
     restoreData,
     userProfile,
     setUserProfile,
+    customCategories,
+    addCategory,
+    deleteCategory,
+    recurringItems,
+    addRecurring,
+    deleteRecurring,
+    onboardingComplete,
+    completeOnboarding,
+    isGuest,
+    startAsGuest,
     syncStatus
   };
 

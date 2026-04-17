@@ -30,7 +30,7 @@ export default function TransactionList({ setTab }) {
           <div style={{ textAlign: 'center', color: 'var(--text-secondary)', padding: 24, fontSize: '0.9rem' }}>Belum ada transaksi.</div>
         ) : (
           transactions.slice(0, 5).map(tx => {
-            const cat = CATEGORIES[tx.categoryId] || FALLBACK_CATEGORY;
+            const cat = CATEGORIES[tx.categoryId] || customCategories.find(c => c.id === tx.categoryId) || FALLBACK_CATEGORY;
             const Icon = cat.icon;
             const wallet = getWallet(tx.walletId);
             const dateStr = new Date(tx.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' });
@@ -39,10 +39,17 @@ export default function TransactionList({ setTab }) {
               <div key={tx.id} style={styles.txItem}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12, minWidth: 0, flex: 1 }}>
                   <div style={{ width: 40, height: 40, borderRadius: 10, background: 'rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                    <Icon size={20} className={cat.color} />
+                    {typeof Icon === 'string' ? (
+                      <span style={{ fontSize: '1.2rem' }}>{Icon}</span>
+                    ) : (
+                      <Icon size={20} className={cat.color} />
+                    )}
                   </div>
                   <div style={{ minWidth: 0, flex: 1 }}>
-                    <div style={{ fontSize: '0.9rem', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{tx.note}</div>
+                    <div style={{ fontSize: '0.9rem', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: 6 }}>
+                      {tx.note}
+                      {tx.mood && <span title="Mood saat ini">{tx.mood}</span>}
+                    </div>
                     <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
                       <span>{dateStr} • {cat.name}</span>
                       {wallet && (

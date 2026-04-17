@@ -2,6 +2,7 @@ import { useState, useRef } from 'react'
 import { Target, Save, Key, Download, Upload, Shield, FileText, Cloud, LogOut } from 'lucide-react'
 import { useTransactions } from '../context/TransactionContext'
 import { useAuth } from '../context/AuthContext'
+import CategoryManager from './CategoryManager'
 
 export default function Settings() {
   const { 
@@ -262,6 +263,8 @@ export default function Settings() {
           </div>
         </div>
       </div>
+
+      <CategoryManager />
     </div>
   );
 }

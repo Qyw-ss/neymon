@@ -1,10 +1,12 @@
-import { Wallet, LayoutDashboard, List, Settings, CreditCard, PiggyBank } from 'lucide-react'
+import { Wallet, LayoutDashboard, List, Settings, CreditCard, PiggyBank, BarChart2, Clock } from 'lucide-react'
 
 export default function Sidebar({ activeTab, setTab }) {
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { id: 'wallets', label: 'Dompet', icon: CreditCard },
     { id: 'transactions', label: 'Transaksi', icon: List },
+    { id: 'report', label: 'Laporan', icon: BarChart2 },
+    { id: 'recurring', label: 'Tagihan', icon: Clock },
     { id: 'savings', label: 'Tabungan', icon: PiggyBank },
     { id: 'settings', label: 'Pengaturan', icon: Settings }
   ];

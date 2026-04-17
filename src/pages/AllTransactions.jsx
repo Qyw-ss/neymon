@@ -22,7 +22,7 @@ export default function AllTransactions() {
       ) : (
         <div>
           {transactions.map(tx => {
-            const cat = CATEGORIES[tx.categoryId] || FALLBACK_CATEGORY;
+            const cat = CATEGORIES[tx.categoryId] || customCategories.find(c => c.id === tx.categoryId) || FALLBACK_CATEGORY;
             const Icon = cat.icon;
             const wallet = getWallet(tx.walletId);
             const dateStr = new Date(tx.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
@@ -31,10 +31,17 @@ export default function AllTransactions() {
               <div key={tx.id} style={styles.txItem}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
                   <div style={{ width: 48, height: 48, borderRadius: 12, background: 'rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <Icon size={24} className={cat.color} />
+                    {typeof Icon === 'string' ? (
+                      <span style={{ fontSize: '1.5rem' }}>{Icon}</span>
+                    ) : (
+                      <Icon size={24} className={cat.color} />
+                    )}
                   </div>
                   <div>
-                    <div style={{ fontSize: '1rem', fontWeight: 600 }}>{tx.note}</div>
+                    <div style={{ fontSize: '1rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 8 }}>
+                      {tx.note}
+                      {tx.mood && <span title="Mood">{tx.mood}</span>}
+                    </div>
                     <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
                       {dateStr} • {cat.name}
                       {wallet && (
