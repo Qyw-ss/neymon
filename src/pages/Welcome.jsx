@@ -1,4 +1,4 @@
-import { Wallet, Sparkles, Shield, Zap, ArrowRight, Chrome } from 'lucide-react'
+import { Wallet, Sparkles, Shield, Zap } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { useTransactions } from '../context/TransactionContext'
 
