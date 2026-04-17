@@ -31,14 +31,28 @@ const PAGE_META = {
 
 function AppContent() {
   const [activeTab, setActiveTab] = useState('dashboard');
-  const { user } = useAuth();
-  const { userProfile, onboardingComplete, isGuest } = useTransactions();
-  
+  const { user, authLoading } = useAuth();
+  const { userProfile, onboardingComplete, isGuest, transactions, wallets } = useTransactions();
+
+  // Show loading spinner while Firebase auth state resolves
+  if (authLoading) {
+    return (
+      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0f172a', color: 'white', flexDirection: 'column', gap: 16 }}>
+        <div style={{ width: 48, height: 48, borderRadius: '50%', border: '3px solid var(--accent-primary)', borderTopColor: 'transparent', animation: 'spin 0.8s linear infinite' }} />
+        <p style={{ color: 'var(--text-secondary)' }}>Memuat Neymon...</p>
+      </div>
+    );
+  }
+
+  // Legacy users: if they already have data but no onboarding flag, auto-complete onboarding
+  const hasExistingData = transactions.length > 0 || wallets.length > 0;
+  const effectiveOnboardingComplete = onboardingComplete || hasExistingData;
+
   if (!user && !isGuest) {
     return <Welcome />;
   }
 
-  if (!onboardingComplete) {
+  if (!effectiveOnboardingComplete) {
     return <Onboarding />;
   }
 
