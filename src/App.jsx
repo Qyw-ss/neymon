@@ -132,12 +132,16 @@ function AppContent() {
       <main className="app-main">
         {isGuest && (
           <div style={{ background: 'rgba(245, 158, 11, 0.1)', border: '1px solid rgba(245, 158, 11, 0.2)', padding: '8px 16px', borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-            <span style={{ fontSize: '0.85rem', color: 'var(--warning)', fontWeight: 600 }}>⚠️ Anda dalam Mode Tamu. Data hanya disimpan di browser ini.</span>
+            <span style={{ fontSize: '0.85rem', color: 'var(--warning)', fontWeight: 600 }}>⚠️ Mode Tamu — Data hanya tersimpan di browser ini.</span>
             <button 
-              onClick={() => { window.location.reload(); }} 
+              onClick={() => {
+                localStorage.removeItem('smart_is_guest');
+                localStorage.removeItem('smart_onboarding_done');
+                window.location.reload();
+              }} 
               style={{ background: 'var(--warning)', color: '#000', border: 'none', padding: '4px 12px', borderRadius: 6, fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer' }}
             >
-              Login Sekarang
+              Login & Simpan Data
             </button>
           </div>
         )}
