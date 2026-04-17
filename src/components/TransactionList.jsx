@@ -37,24 +37,26 @@ export default function TransactionList({ setTab }) {
             
             return (
               <div key={tx.id} style={styles.txItem}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                  <div style={{ width: 40, height: 40, borderRadius: 10, background: 'rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12, minWidth: 0, flex: 1 }}>
+                  <div style={{ width: 40, height: 40, borderRadius: 10, background: 'rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                     <Icon size={20} className={cat.color} />
                   </div>
-                  <div>
-                    <div style={{ fontSize: '0.9rem', fontWeight: 500 }}>{tx.note}</div>
-                    <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
-                      {dateStr} • {cat.name}
+                  <div style={{ minWidth: 0, flex: 1 }}>
+                    <div style={{ fontSize: '0.9rem', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{tx.note}</div>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                      <span>{dateStr} • {cat.name}</span>
                       {wallet && (
-                        <span style={{ marginLeft: 6, padding: '1px 6px', borderRadius: 6, background: `${wallet.color}15`, color: wallet.color, fontSize: '0.7rem' }}>
+                        <span style={{ padding: '1px 6px', borderRadius: 6, background: `${wallet.color}15`, color: wallet.color, fontSize: '0.7rem', fontWeight: 600 }}>
                           {wallet.icon} {wallet.name}
                         </span>
                       )}
                     </div>
                   </div>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                  <div style={{ fontWeight: 600 }}>- Rp {tx.amount.toLocaleString('id-ID')}</div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginLeft: 12 }}>
+                  <div style={{ fontWeight: 600, fontSize: '0.9rem', whiteSpace: 'nowrap', color: tx.type === 'income' ? 'var(--success)' : 'var(--text-primary)' }}>
+                    {tx.type === 'income' ? '+' : '-'} Rp {tx.amount.toLocaleString('id-ID')}
+                  </div>
                   <button 
                     onClick={() => deleteTransaction(tx.id)}
                     style={styles.btnIcon}

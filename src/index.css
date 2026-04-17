@@ -195,4 +195,21 @@ body {
   .app-main {
     padding-bottom: 80px;
   }
+
+  /* Font and Padding Adjustments for Small Screens */
+  .glass-panel {
+    padding: 16px !important; /* Smaller padding on mobile cards */
+  }
+
+  h1 {
+    font-size: 1.5rem !important;
+  }
+
+  h2 {
+    font-size: 1.25rem !important;
+  }
+
+  .text-1-8rem {
+    font-size: 1.4rem !important; /* Scale down large numbers */
+  }
 }

@@ -28,7 +28,7 @@ function AppContent() {
   const styles = {
     app: { display: 'flex', maxWidth: 1440, margin: '0 auto', padding: 24, gap: 24, minHeight: '100vh', flexDirection: 'column', '@media (min-width: 768px)': { flexDirection: 'row' } },
     main: { flex: 1, display: 'flex', flexDirection: 'column', gap: 24 },
-    grid2: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: 24 }
+    grid2: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 24 }
   };
 
   const renderContent = () => {

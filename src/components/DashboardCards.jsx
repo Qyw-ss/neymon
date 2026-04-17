@@ -35,7 +35,7 @@ export default function DashboardCards({ setTab }) {
             <h3>Total Saldo</h3>
             <CreditCard size={18} color="var(--accent-primary)" />
           </div>
-          <div style={{ fontSize: '1.8rem', fontWeight: 700 }}>Rp {totalWalletBalance.toLocaleString('id-ID')}</div>
+          <div className="text-1-8rem" style={{ fontSize: '1.8rem', fontWeight: 700 }}>Rp {totalWalletBalance.toLocaleString('id-ID')}</div>
           <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
             {wallets.slice(0, 3).map(w => (
               <span key={w.id} style={{ ...styles.walletChip, background: `${w.color}20`, color: w.color }}>
@@ -56,7 +56,7 @@ export default function DashboardCards({ setTab }) {
             <h3>Pemasukan Bulan Ini</h3>
             <TrendingUp size={18} color="var(--success)" />
           </div>
-          <div style={{ fontSize: '1.8rem', fontWeight: 700, color: 'var(--success)' }}>
+          <div className="text-1-8rem" style={{ fontSize: '1.8rem', fontWeight: 700, color: 'var(--success)' }}>
             + Rp {totalIncome.toLocaleString('id-ID')}
           </div>
           <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
@@ -70,7 +70,7 @@ export default function DashboardCards({ setTab }) {
             <h3>Pengeluaran Bulan Ini</h3>
             <TrendingDown size={18} color="var(--danger)" />
           </div>
-          <div style={{ fontSize: '1.8rem', fontWeight: 700, color: 'var(--danger)' }}>
+          <div className="text-1-8rem" style={{ fontSize: '1.8rem', fontWeight: 700, color: 'var(--danger)' }}>
             - Rp {totalExpense.toLocaleString('id-ID')}
           </div>
           <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>

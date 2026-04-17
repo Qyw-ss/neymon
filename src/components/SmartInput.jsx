@@ -93,9 +93,9 @@ export default function SmartInput() {
     walletBtn: { display: 'flex', alignItems: 'center', gap: 8, padding: '10px 16px', borderRadius: 12, border: '1px solid var(--glass-border)', background: 'rgba(15, 23, 42, 0.6)', cursor: 'pointer', color: 'var(--text-primary)', fontSize: '0.9rem', fontWeight: 500, transition: 'all 0.2s', width: '100%' },
     walletDropdown: { position: 'absolute', top: '110%', left: 0, right: 0, background: 'rgba(30, 41, 59, 0.95)', backdropFilter: 'blur(20px)', border: '1px solid var(--glass-border)', borderRadius: 12, padding: 8, zIndex: 50, boxShadow: '0 12px 40px rgba(0,0,0,0.4)' },
     walletOption: { display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', borderRadius: 8, cursor: 'pointer', transition: 'all 0.15s' },
-    toggleGroup: { display: 'flex', gap: 8 },
+    toggleGroup: { display: 'flex', gap: 8, flexWrap: 'wrap' },
     toggleBtn: (active, color) => ({
-      flex: 1, padding: '8px 12px', borderRadius: 10, border: `1px solid ${active ? color : 'var(--glass-border)'}`,
+      flex: '1 1 auto', minWidth: 120, padding: '10px 12px', borderRadius: 10, border: `1px solid ${active ? color : 'var(--glass-border)'}`,
       background: active ? `${color}20` : 'transparent', color: active ? color : 'var(--text-secondary)',
       cursor: 'pointer', fontWeight: 600, fontSize: '0.85rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, transition: 'all 0.2s'
     }),
@@ -136,19 +136,19 @@ export default function SmartInput() {
         <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: 6, display: 'block' }}>
           {isIncome ? 'Diterima ke Dompet:' : 'Dari Dompet:'}
         </label>
-        <div style={styles.walletBtn} onClick={() => setShowWalletPicker(!showWalletPicker)}>
+        <div style={{ ...styles.walletBtn, height: 'auto', minHeight: 44, padding: '8px 12px' }} onClick={() => setShowWalletPicker(!showWalletPicker)}>
           {selectedWallet ? (
-            <>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, flex: 1, flexWrap: 'wrap' }}>
               <span style={{ fontSize: '1.1rem' }}>{selectedWallet.icon}</span>
-              <span style={{ flex: 1 }}>{selectedWallet.name}</span>
-              <span style={{ fontSize: '0.8rem', color: selectedWallet.color, fontWeight: 600 }}>
+              <span style={{ fontWeight: 600, fontSize: '0.9rem' }}>{selectedWallet.name}</span>
+              <span style={{ fontSize: '0.8rem', color: selectedWallet.color, fontWeight: 700, marginLeft: 'auto' }}>
                 Rp {selectedWallet.balance.toLocaleString('id-ID')}
               </span>
-            </>
+            </div>
           ) : (
             <span style={{ color: 'var(--text-secondary)' }}>Pilih Dompet...</span>
           )}
-          <ChevronDown size={16} color="var(--text-secondary)" />
+          <ChevronDown size={16} color="var(--text-secondary)" style={{ marginLeft: 8 }} />
         </div>
 
         {showWalletPicker && (
