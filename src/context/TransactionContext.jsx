@@ -40,6 +40,11 @@ export function TransactionProvider({ children }) {
     return saved ? JSON.parse(saved) : [];
   });
 
+  const [userProfile, setUserProfile] = useState(() => {
+    const saved = localStorage.getItem('smart_profile');
+    return saved ? JSON.parse(saved) : { name: 'Iqbal Muwafa', avatar: 'https://ui-avatars.com/api/?name=Iqbal+Muwafa&background=random' };
+  });
+
   const [syncStatus, setSyncStatus] = useState('idle'); // 'idle' | 'syncing' | 'synced' | 'error'
 
   // --- Initial Data Pull from Cloud on Login ---
@@ -58,6 +63,7 @@ export function TransactionProvider({ children }) {
               if (data.wallets) setWallets(data.wallets);
               if (data.monthlyBudget) setMonthlyBudget(data.monthlyBudget);
               if (data.goals) setGoals(data.goals);
+              if (data.userProfile) setUserProfile(data.userProfile);
               alert('Data berhasil di-sync dari cloud!');
             }
           }
@@ -91,6 +97,7 @@ export function TransactionProvider({ children }) {
     localStorage.setItem('smart_budget', monthlyBudget.toString());
     localStorage.setItem('smart_ai_api_key', aiApiKey);
     localStorage.setItem('smart_goals', JSON.stringify(goals));
+    localStorage.setItem('smart_profile', JSON.stringify(userProfile));
 
     // Prevent syncing on the very first render to avoid overwriting cloud with old local data before fetching
     if (isInitialLoad.current) {
@@ -105,6 +112,7 @@ export function TransactionProvider({ children }) {
         wallets,
         monthlyBudget,
         goals,
+        userProfile,
         lastUpdated: new Date().toISOString()
       });
     }, 2000);
@@ -232,6 +240,7 @@ export function TransactionProvider({ children }) {
     if (parsedData.monthlyBudget) setMonthlyBudget(parsedData.monthlyBudget);
     if (parsedData.aiApiKey !== undefined) setAiApiKey(parsedData.aiApiKey);
     if (parsedData.goals) setGoals(parsedData.goals);
+    if (parsedData.userProfile) setUserProfile(parsedData.userProfile);
   };
 
   // --- Computed Values ---
@@ -266,6 +275,8 @@ export function TransactionProvider({ children }) {
     deleteGoal,
     allocateToGoal,
     restoreData,
+    userProfile,
+    setUserProfile,
     syncStatus
   };
 

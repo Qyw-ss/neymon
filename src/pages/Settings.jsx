@@ -4,10 +4,20 @@ import { useTransactions } from '../context/TransactionContext'
 import { useAuth } from '../context/AuthContext'
 
 export default function Settings() {
-  const { monthlyBudget, updateBudget, aiApiKey, setAiApiKey, transactions, wallets, goals, restoreData, syncStatus } = useTransactions();
+  const { 
+    monthlyBudget, updateBudget, 
+    aiApiKey, setAiApiKey, 
+    transactions, wallets, goals, 
+    restoreData, syncStatus,
+    userProfile, setUserProfile
+  } = useTransactions();
+  
   const { user, loginWithGoogle, logout } = useAuth();
+  
   const [budgetInput, setBudgetInput] = useState(monthlyBudget.toString());
   const [apiKeyInput, setApiKeyInput] = useState(aiApiKey || '');
+  const [profileName, setProfileName] = useState(userProfile.name);
+  const [profileAvatar, setProfileAvatar] = useState(userProfile.avatar);
   const fileInputRef = useRef(null);
 
   const handleSave = (e) => {
@@ -19,11 +29,12 @@ export default function Settings() {
     }
     updateBudget(newBudget);
     setAiApiKey(apiKeyInput.trim());
+    setUserProfile({ name: profileName, avatar: profileAvatar });
     alert('Pengaturan berhasil diperbarui!');
   };
 
   const handleExportJSON = () => {
-    const data = { transactions, wallets, goals, monthlyBudget, aiApiKey };
+    const data = { transactions, wallets, goals, monthlyBudget, aiApiKey, userProfile };
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -92,6 +103,45 @@ export default function Settings() {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+      {/* Profile Settings Section */}
+      <div className="glass-panel" style={styles.card}>
+        <div>
+          <h2 style={{ marginBottom: 8 }}>Pengaturan Profil</h2>
+          <p style={{ color: 'var(--text-secondary)' }}>Sesuaikan identitas penggunamu di Neymon.</p>
+        </div>
+
+        <form onSubmit={handleSave} style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+          <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap', alignItems: 'center' }}>
+             <img src={profileAvatar} alt="Preview" style={{ width: 80, height: 80, borderRadius: '50%', border: '3px solid var(--accent-primary)', objectFit: 'cover', background: 'rgba(255,255,255,0.05)' }} />
+             <div style={{ flex: 1, minWidth: 200, display: 'flex', flexDirection: 'column', gap: 16 }}>
+                <div style={styles.formGroup}>
+                  <label style={{ fontWeight: 500, fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Nama Lengkap</label>
+                  <div style={styles.inputGroup}>
+                    <input 
+                      type="text" style={styles.input} value={profileName}
+                      onChange={(e) => setProfileName(e.target.value)}
+                    />
+                  </div>
+                </div>
+                <div style={styles.formGroup}>
+                  <label style={{ fontWeight: 500, fontSize: '0.9rem', color: 'var(--text-secondary)' }}>URL Foto Profil</label>
+                  <div style={styles.inputGroup}>
+                    <input 
+                      type="text" style={styles.input} value={profileAvatar}
+                      onChange={(e) => setProfileAvatar(e.target.value)}
+                      placeholder="https://..."
+                    />
+                  </div>
+                </div>
+             </div>
+          </div>
+          
+          <button type="submit" style={styles.btnPrimary}>
+            <Save size={18} /> Simpan Perubahan Profil
+          </button>
+        </form>
+      </div>
+
       <div className="glass-panel" style={styles.card}>
         <div>
           <h2 style={{ marginBottom: 8 }}>Pengaturan Aplikasi</h2>

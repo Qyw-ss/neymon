@@ -23,7 +23,18 @@ const PAGE_META = {
 
 function AppContent() {
   const [activeTab, setActiveTab] = useState('dashboard');
-  const meta = PAGE_META[activeTab] || PAGE_META.dashboard;
+  const { userProfile } = useTransactions();
+  
+  const firstName = userProfile.name.split(' ')[0];
+  const dynamicMeta = {
+    ...PAGE_META,
+    dashboard: { 
+      title: `Halo, ${firstName}! 👋`, 
+      subtitle: PAGE_META.dashboard.subtitle 
+    }
+  };
+  
+  const meta = dynamicMeta[activeTab] || dynamicMeta.dashboard;
 
   const styles = {
     app: { display: 'flex', maxWidth: 1440, margin: '0 auto', padding: 24, gap: 24, minHeight: '100vh', flexDirection: 'column', '@media (min-width: 768px)': { flexDirection: 'row' } },
@@ -71,7 +82,7 @@ function AppContent() {
             <div className="glass-panel" style={{ width: 40, height: 40, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
               <Bell size={20} />
             </div>
-            <img src="https://ui-avatars.com/api/?name=Iqbal+Muwafa&background=random" alt="Avatar" style={{ width: 44, height: 44, borderRadius: '50%', border: '2px solid var(--accent-primary)' }} />
+            <img src={userProfile.avatar} alt="Avatar" style={{ width: 44, height: 44, borderRadius: '50%', border: '2px solid var(--accent-primary)', objectFit: 'cover' }} />
           </div>
         </header>
 
