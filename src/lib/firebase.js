@@ -4,7 +4,7 @@ import { getDatabase } from 'firebase/database';
 
 const firebaseConfig = {
   apiKey: "AIzaSyDCkxjlp-L5gpZ5MYGsov-Vfbm0K_V9E94",
-  authDomain: "neymon.vercel.app",
+  authDomain: "monlimo.firebaseapp.com",
   projectId: "monlimo",
   storageBucket: "monlimo.firebasestorage.app",
   messagingSenderId: "807020650784",
