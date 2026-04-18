@@ -3,7 +3,7 @@ import { useAuth } from '../context/AuthContext'
 import { useTransactions } from '../context/TransactionContext'
 
 export default function Welcome() {
-  const { loginWithGoogle } = useAuth();
+  const { loginWithGoogle, loginLoading, loginError } = useAuth();
   const { startAsGuest } = useTransactions();
 
   const styles = {
@@ -12,7 +12,7 @@ export default function Welcome() {
     logoBox: { width: 80, height: 80, borderRadius: 24, background: 'linear-gradient(135deg, var(--accent-primary), var(--accent-secondary))', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 12, boxShadow: '0 20px 40px rgba(99,102,241,0.3)' },
     title: { fontSize: '3rem', fontWeight: 800, letterSpacing: '-0.02em', margin: 0 },
     subtitle: { fontSize: '1.1rem', color: 'var(--text-secondary)', lineHeight: 1.6, marginBottom: 32 },
-    btnGoogle: { width: '100%', maxWidth: 320, padding: '16px 24px', borderRadius: 16, border: 'none', background: 'white', color: '#0f172a', fontWeight: 700, fontSize: '1rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12, transition: 'transform 0.2s', boxShadow: '0 10px 20px rgba(0,0,0,0.1)' },
+    btnGoogle: { width: '100%', maxWidth: 320, padding: '16px 24px', borderRadius: 16, border: 'none', background: loginLoading ? '#ccc' : 'white', color: '#0f172a', fontWeight: 700, fontSize: '1rem', cursor: loginLoading ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12, transition: 'transform 0.2s', boxShadow: '0 10px 20px rgba(0,0,0,0.1)', opacity: loginLoading ? 0.7 : 1 },
     btnGuest: { background: 'transparent', border: '1px solid var(--glass-border)', color: 'var(--text-secondary)', padding: '12px 24px', borderRadius: 12, cursor: 'pointer', fontSize: '0.9rem', fontWeight: 600, transition: 'all 0.2s' },
     features: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 24, marginTop: 64, width: '100%', maxWidth: 900 },
     featCard: { padding: 24, borderRadius: 20, background: 'rgba(255,255,255,0.02)', border: '1px solid var(--glass-border)', textAlign: 'left' }
@@ -33,12 +33,26 @@ export default function Welcome() {
         <button 
           style={styles.btnGoogle} 
           onClick={loginWithGoogle}
-          onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
-          onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+          disabled={loginLoading}
         >
-          <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="G" style={{ width: 20 }} />
-          Masuk dengan Google
+          {loginLoading ? (
+            <>
+              <div style={{ width: 18, height: 18, border: '2px solid #0f172a', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+              Menghubungkan...
+            </>
+          ) : (
+            <>
+              <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="G" style={{ width: 20 }} />
+              Masuk dengan Google
+            </>
+          )}
         </button>
+
+        {loginError && (
+          <div style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)', borderRadius: 12, padding: '10px 16px', maxWidth: 320, fontSize: '0.85rem', color: '#fca5a5', textAlign: 'left', lineHeight: 1.5 }}>
+            ⚠️ {loginError}
+          </div>
+        )}
 
         <div style={{ marginTop: 12 }}>
           <button 

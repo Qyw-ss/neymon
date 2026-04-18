@@ -1,8 +1,6 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import { 
   signInWithPopup,
-  signInWithRedirect,
-  getRedirectResult,
   signOut, 
   onAuthStateChanged 
 } from 'firebase/auth';
@@ -13,14 +11,10 @@ const AuthContext = createContext();
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [authLoading, setAuthLoading] = useState(true);
+  const [loginLoading, setLoginLoading] = useState(false);
+  const [loginError, setLoginError] = useState(null);
 
   useEffect(() => {
-    // Handle redirect result (for Safari / mobile)
-    getRedirectResult(auth).catch((err) => {
-      console.error('Redirect login error:', err);
-    });
-
-    // Listen to auth state changes
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
       setAuthLoading(false);
@@ -29,25 +23,25 @@ export function AuthProvider({ children }) {
   }, []);
 
   const loginWithGoogle = async () => {
+    setLoginLoading(true);
+    setLoginError(null);
     try {
-      // Try popup first (works on desktop Chrome/Firefox)
-      // Falls back to redirect on Safari/mobile where popups are blocked
-      const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
-      const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-
-      if (isSafari || isMobile) {
-        await signInWithRedirect(auth, googleProvider);
-      } else {
-        await signInWithPopup(auth, googleProvider);
-      }
+      // signInWithPopup is reliable across all modern browsers
+      // Safari on iOS 14.5+ supports this natively
+      await signInWithPopup(auth, googleProvider);
     } catch (error) {
-      // Popup blocked — fallback to redirect
-      if (error.code === 'auth/popup-blocked' || error.code === 'auth/popup-closed-by-user') {
-        await signInWithRedirect(auth, googleProvider);
+      if (error.code === 'auth/popup-closed-by-user') {
+        // User closed the popup - not an error, just ignore
+      } else if (error.code === 'auth/popup-blocked') {
+        setLoginError('Popup diblok browser. Izinkan popup untuk neymon.vercel.app di pengaturan browser Anda, lalu coba lagi.');
+      } else if (error.code === 'auth/cancelled-popup-request') {
+        // Another popup was already open - ignore
       } else {
         console.error('Login error:', error);
-        alert('Login gagal: ' + error.message);
+        setLoginError('Login gagal: ' + (error.message || 'Coba lagi beberapa saat.'));
       }
+    } finally {
+      setLoginLoading(false);
     }
   };
 
@@ -58,7 +52,7 @@ export function AuthProvider({ children }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, authLoading, loginWithGoogle, logout }}>
+    <AuthContext.Provider value={{ user, authLoading, loginWithGoogle, loginLoading, loginError, logout }}>
       {children}
     </AuthContext.Provider>
   );
